@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: api-gateway
+  config:
+    import: "optional:file:../.env[.properties],optional:file:./.env[.properties]"
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+        - RemoveRequestHeader=X-Internal-Key
+      routes:
+        # ---------------- API Usuarios (8081)
+        - id: usuarios
+          uri: ${USUARIOS_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/auth/**,/api/usuarios/**,/api/admin/usuarios/**,/api/admin/roles/**
+        # ---------------- API Licitaciones (8082)
+        - id: licitaciones
+          uri: ${LICITACIONES_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/licitaciones/**,/api/postulaciones/**,/api/admin/licitaciones/**,/api/admin/postulaciones/**
+        # ---------------- API Ventas (8083)
+        - id: ventas
+          uri: ${VENTAS_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/planes/**,/api/suscripciones/**,/api/ventas/**,/api/pagos/**,/api/admin/ventas/**,/api/admin/pagos/**,/api/admin/suscripciones/**
+        # ---------------- API Notificaciones (8084)
+        - id: notificaciones
+          uri: ${NOTIFICACIONES_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/notificaciones/**,/api/admin/notificaciones/**
+        # ---------------- API Asistente (8085)
+        - id: asistente
+          uri: ${ASISTENTE_URL:http://localhost:8085}
+          predicates:
+            - Path=/api/asistente/**
+          metadata:
+            response-timeout: 90000
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 60s
+
+server:
+  port: 8080
+  address: ${GATEWAY_BIND_ADDRESS:127.0.0.1}
+
+licitawatch:
+  jwt:
+    secret: ${JWT_SECRET}
+  rate-limit:
+    general-per-minute: ${RATE_LIMIT_GENERAL_PER_MINUTE:300}
+    auth-per-minute: ${RATE_LIMIT_AUTH_PER_MINUTE:30}
+    asistente-per-minute: ${RATE_LIMIT_ASISTENTE_PER_MINUTE:20}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

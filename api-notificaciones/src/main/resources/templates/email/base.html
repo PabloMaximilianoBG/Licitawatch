@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title th:text="${asunto}">LicitaWatch</title>
+    <style>
+        @media only screen and (max-width: 620px) {
+            .container { width: 100% !important; }
+            .px { padding-left: 20px !important; padding-right: 20px !important; }
+            .kv td { display: block !important; width: 100% !important; }
+            .kv td.k { padding-bottom: 0 !important; }
+        }
+    </style>
+</head>
+<body style="margin:0;padding:0;background:#eef2f7;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;">
+<span style="display:none;max-height:0;overflow:hidden;opacity:0;" th:text="${preheader}"></span>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2f7;padding:28px 12px;">
+    <tr>
+        <td align="center">
+            <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0"
+                   style="width:600px;max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(15,23,42,.08);">
+                <!-- Encabezado de marca -->
+                <tr>
+                    <td class="px" style="background:#0b1220;background-image:linear-gradient(135deg,#0b1220 0%,#1e3a8a 60%,#2563eb 100%);padding:28px 36px;">
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td style="vertical-align:middle;">
+                                    <span style="display:inline-block;width:34px;height:34px;border-radius:9px;background:#3b82f6;color:#fff;font-weight:800;font-size:18px;line-height:34px;text-align:center;vertical-align:middle;">L</span>
+                                    <span style="color:#ffffff;font-size:20px;font-weight:700;letter-spacing:.3px;vertical-align:middle;margin-left:8px;">Licita<span style="color:#93c5fd;">Watch</span></span>
+                                </td>
+                                <td align="right" style="color:#93c5fd;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;" th:text="${etiqueta}">Notificación</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <!-- Cuerpo -->
+                <tr>
+                    <td class="px" style="padding:34px 36px 8px 36px;">
+                        <div th:if="${estadoTexto}" th:style="'display:inline-block;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.4px;margin-bottom:16px;background:' + ${estadoFondo} + ';color:' + ${estadoColor} + ';'" th:text="${estadoTexto}">ESTADO</div>
+                        <h1 style="margin:0 0 12px 0;font-size:24px;line-height:1.3;color:#0f172a;" th:text="${titulo}">Título</h1>
+                        <p style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#334155;" th:text="${saludo}">Hola</p>
+                        <p th:each="p : ${parrafos}" style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#334155;" th:text="${p}">Texto</p>
+                    </td>
+                </tr>
+                <!-- Monto destacado (voucher) -->
+                <tr th:if="${montoDestacado}">
+                    <td class="px" style="padding:4px 36px 10px 36px;">
+                        <div style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:1px;">Monto pagado</div>
+                        <div style="font-size:34px;font-weight:800;color:#0f172a;" th:text="${montoDestacado}">$24.990</div>
+                    </td>
+                </tr>
+                <!-- Tabla de detalles -->
+                <tr th:if="${detalles != null and !detalles.isEmpty()}">
+                    <td class="px" style="padding:8px 36px 8px 36px;">
+                        <div th:if="${detallesTitulo}" style="font-size:12px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:1.2px;margin:6px 0 8px 0;" th:text="${detallesTitulo}">Detalle</div>
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="kv"
+                               style="border:1px solid #e2e8f0;border-radius:12px;border-collapse:separate;overflow:hidden;">
+                            <tr th:each="d, st : ${detalles}" th:style="${st.odd} ? 'background:#f8fafc;' : 'background:#ffffff;'">
+                                <td class="k" style="padding:11px 16px;font-size:13px;color:#64748b;width:45%;border-bottom:1px solid #eef2f7;" th:text="${d.key}">Clave</td>
+                                <td style="padding:11px 16px;font-size:13px;color:#0f172a;font-weight:600;border-bottom:1px solid #eef2f7;word-break:break-all;" th:text="${d.value}">Valor</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <!-- Botón -->
+                <tr th:if="${botonUrl}">
+                    <td class="px" align="left" style="padding:22px 36px 6px 36px;">
+                        <a th:href="${botonUrl}" style="display:inline-block;background:#2563eb;background-image:linear-gradient(135deg,#2563eb,#4f46e5);color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 28px;border-radius:10px;" th:text="${botonTexto}">Acción</a>
+                    </td>
+                </tr>
+                <tr th:if="${mostrarEnlace and botonUrl != null}">
+                    <td class="px" style="padding:12px 36px 0 36px;font-size:12px;line-height:1.6;color:#64748b;">
+                        Si el botón no funciona, copia y pega este enlace en tu navegador:<br>
+                        <a th:href="${botonUrl}" style="color:#2563eb;word-break:break-all;" th:text="${botonUrl}">enlace</a>
+                    </td>
+                </tr>
+                <!-- Aviso -->
+                <tr th:if="${aviso}">
+                    <td class="px" style="padding:18px 36px 0 36px;">
+                        <div style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.5;" th:text="${aviso}">Aviso</div>
+                    </td>
+                </tr>
+                <!-- Pie -->
+                <tr>
+                    <td class="px" style="padding:30px 36px 30px 36px;">
+                        <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 16px 0;">
+                        <p style="margin:0;font-size:12px;line-height:1.6;color:#94a3b8;">
+                            LicitaWatch · Plataforma privada de gestión de licitaciones.<br>
+                            Este es un correo automático, por favor no respondas a este mensaje.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

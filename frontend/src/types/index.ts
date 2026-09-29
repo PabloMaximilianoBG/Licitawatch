@@ -1,115 +1,294 @@
-export type Rol = "EMPRESA" | "CLIENTE" | "ADMINISTRADOR";
+export type Rol = 'PYME' | 'LICITADOR' | 'ADMINISTRADOR'
 
-export interface UsuarioResumen {
-  id: number;
-  email: string;
-  rol: Rol;
+export interface Usuario {
+  id: number
+  email: string
+  rol: Rol
+  activo: boolean
+  emailConfirmado: boolean
+  perfilId: number | null
+  nombre: string
+  rut: string | null
+  razonSocial: string | null
+  nombreContacto: string | null
+  area: string | null
+  creadoEn: string | null
+  ultimoLogin: string | null
 }
 
-export interface TokenResponse {
-  accessToken: string;
-  refreshToken: string;
-  expiraEnSegundos: number;
-  usuario: UsuarioResumen;
+export interface LoginResponse {
+  token: string
+  tipo: string
+  expiraEn: string
+  usuario: Usuario
 }
 
-export interface PerfilResponse {
-  id: number;
-  email: string;
-  rol: Rol;
-  activo: boolean;
-  razonSocial: string | null;
-  rubro: string | null;
-  nombreContacto: string | null;
-  rut: string | null;
-  area: string | null;
+export interface RegistroResponse {
+  usuarioId: number
+  email: string
+  rol: Rol
+  correoEnviado: boolean
+  mensaje: string
 }
 
-export interface UsuarioAdminResponse {
-  id: number;
-  email: string;
-  rol: Rol;
-  activo: boolean;
-  creadoEn: string;
+export interface Page<T> {
+  content: T[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
 }
 
-export type EstadoLicitacion = "PUBLICADA" | "CERRADA";
-
-export interface LicitacionResponse {
-  id: number;
-  empresaId: number;
-  titulo: string;
-  rubro: string;
-  montoEstimado: number | null;
-  region: string;
-  estado: EstadoLicitacion;
-  fechaCierre: string;
+export interface ApiError {
+  status: number
+  code?: string
+  message: string
+  errores?: Record<string, string>
 }
 
-export type EstadoPostulacion = "ENVIADA" | "EN_REVISION" | "ACEPTADA" | "RECHAZADA";
+export type EstadoLicitacion = 'BORRADOR' | 'PUBLICADA' | 'CERRADA' | 'ADJUDICADA' | 'CANCELADA' | 'SUSPENDIDA'
+export type EstadoPostulacion = 'ENVIADA' | 'EN_REVISION' | 'SELECCIONADA' | 'RECHAZADA' | 'RETIRADA'
 
-export interface PostulacionResponse {
-  id: number;
-  licitacionId: number;
-  licitacionTitulo: string;
-  clienteId: number;
-  fechaPostulacion: string;
-  propuesta: string;
-  estado: EstadoPostulacion;
+export interface Licitacion {
+  id: number
+  licitadorId: number
+  licitadorNombre?: string
+  titulo: string
+  descripcion: string
+  requisitos?: string
+  condiciones?: string
+  categoria: string
+  region?: string
+  montoEstimado: number
+  fechaCierre: string
+  estado: EstadoLicitacion
+  destacada: boolean
+  fechaPublicacion?: string
+  creadoEn?: string
+  actualizadoEn?: string
+  diasParaCierre?: number
+  cantidadPostulaciones?: number
+  miPostulacionId?: number
+  miPostulacionEstado?: EstadoPostulacion
 }
 
-export type NombrePlan = "ESTANDAR" | "PREMIUM";
-
-export interface PlanResponse {
-  id: number;
-  nombre: NombrePlan;
-  descripcion: string;
-  precio: number;
-  limitePublicacionesMes: number | null;
-  limitePostulacionesMes: number | null;
-  soportePrioritario: boolean;
-  notificacionesAutomaticas: boolean;
+export interface LicitacionInput {
+  titulo: string
+  descripcion: string
+  requisitos: string
+  condiciones: string
+  categoria: string
+  region: string
+  montoEstimado: number | ''
+  fechaCierre: string
+  publicar: boolean
 }
 
-export interface IniciarVentaResponse {
-  ventaId: number;
-  token: string;
-  url: string;
+export interface Postulacion {
+  id: number
+  licitacionId: number
+  licitacionTitulo: string
+  licitacionEstado: EstadoLicitacion
+  fechaCierre: string
+  pymeId: number
+  pymeNombre?: string
+  pymeRut?: string
+  pymeEmail?: string
+  licitadorNombre?: string
+  licitadorEmail?: string
+  fechaPostulacion: string
+  estado: EstadoPostulacion
+  propuesta: string
+  montoOfertado: number
+  plazoEntregaDias: number
+  comentarioLicitador?: string
+  actualizadoEn?: string
 }
 
-export interface PagoResponse {
-  estadoPago: "PENDIENTE" | "APROBADO" | "RECHAZADO";
-  estadoSuscripcion: "ACTIVA" | "VENCIDA";
-  plan: NombrePlan | null;
-  fechaVencimiento: string | null;
+export interface UsoPlan {
+  plan: string
+  publicacionesMes: number
+  limitePublicacionesMes: number | null
+  postulacionesMes: number
+  limitePostulacionesMes: number | null
+  busquedasMes: number
+  limiteBusquedasMes: number | null
 }
 
-export interface SuscripcionResponse {
-  usuarioId: number;
-  plan: NombrePlan | null;
-  estado: "ACTIVA" | "VENCIDA";
-  fechaInicio: string | null;
-  fechaVencimiento: string | null;
+export interface Resumen {
+  rol: Rol
+  kpis: Record<string, number>
+  postulacionesPorEstado?: Record<string, number>
+  licitacionesPorEstado?: Record<string, number>
+  proximasACerrar: Licitacion[]
+  uso?: UsoPlan
 }
 
-export interface VentaAdminResponse {
-  id: number;
-  usuarioId: number;
-  plan: NombrePlan;
-  monto: number;
-  fecha: string;
-  estadoPago: "PENDIENTE" | "APROBADO" | "RECHAZADO";
+export interface Plan {
+  id: number
+  nombre: 'ESTANDAR' | 'PREMIUM'
+  etiqueta: string
+  precio: number
+  precioFormateado: string
+  descripcion: string
+  limitePublicacionesMes: number | null
+  limitePostulacionesMes: number | null
+  limiteBusquedasMes: number | null
+  accesoLicitasist: boolean
+  prioridadVisibilidad: boolean
+  soporte: string
+  duracionDias: number | null
+  beneficios: string[]
 }
 
-export interface ChatResponse {
-  respuesta: string;
-  usoDelUsuario: number;
+export interface Suscripcion {
+  id: number
+  usuarioId: number
+  clienteNombre?: string
+  clienteEmail?: string
+  plan: Plan
+  estado: 'PENDIENTE' | 'ACTIVA' | 'VENCIDA' | 'CANCELADA'
+  fechaInicio?: string
+  fechaFin?: string
+  diasRestantes?: number
+  esPremium: boolean
+  accesoLicitasist: boolean
 }
 
-export interface ErrorResponse {
-  status: number;
-  mensaje: string;
-  path: string;
-  timestamp: string;
-  detalles: string[] | null;
+export interface Venta {
+  id: number
+  suscripcionId: number
+  usuarioId: number
+  plan: string
+  monto: number
+  montoFormateado: string
+  fecha: string
+  pagoId: number
+  estadoPago: EstadoPago
+  numeroOrden: string
+  estadoSuscripcion: string
 }
+
+export type EstadoPago = 'PENDIENTE' | 'APROBADO' | 'RECHAZADO' | 'ANULADO'
+
+export interface Pago {
+  id: number
+  ventaId: number
+  suscripcionId: number
+  usuarioId: number
+  clienteNombre?: string
+  clienteEmail?: string
+  plan: string
+  monto: number
+  montoFormateado: string
+  fecha: string
+  estado: EstadoPago
+  pasarela: string
+  idTransaccion?: string
+  numeroOrden: string
+  codigoAutorizacion?: string
+  tarjeta?: string
+  tipoPago?: string
+  cuotas?: number
+  fechaTransaccion?: string
+  codigoRespuesta?: number
+  estadoSuscripcion?: string
+  mensaje: string
+  comprobanteDisponible: boolean
+}
+
+export interface Transaccion {
+  ventaId: number
+  pagoId: number
+  numeroOrden: string
+  monto: number
+  token: string
+  url: string
+}
+
+export interface Comprobante {
+  pagoId: number
+  estado: string
+  clienteNombre: string
+  clienteRut: string
+  clienteEmail: string
+  perfil: string
+  plan: string
+  monto: number
+  montoFormateado: string
+  fecha: string
+  hora: string
+  numeroOrden: string
+  idTransaccion: string
+  codigoAutorizacion?: string
+  pasarela: string
+  tarjeta?: string
+  tipoPago?: string
+  cuotas?: number
+  vigenteHasta?: string
+}
+
+export interface Notificacion {
+  id: number
+  usuarioId: number
+  tipo: string
+  canal: string
+  destinatario: string
+  asunto: string
+  resumen?: string
+  estado: 'ENVIADO' | 'FALLIDO'
+  detalleError?: string
+  leida: boolean
+  creadoEn: string
+  enviadoEn?: string
+}
+
+export interface EstadoAsistente {
+  acceso: boolean
+  rol: Rol
+  plan: string
+  motivo: string
+  modelo: string
+  sugerencias: string[]
+}
+
+export interface MensajeChat {
+  rol: 'user' | 'assistant'
+  contenido: string
+  fuentes?: string[]
+  error?: boolean
+  fecha: string
+}
+
+export interface MesCantidad { mes: string; cantidad: number }
+
+export interface EstadisticasUsuarios {
+  totalUsuarios: number
+  activos: number
+  inactivos: number
+  emailNoConfirmado: number
+  porRol: Record<string, number>
+  nuevosUltimos30Dias: number
+  registrosPorMes: MesCantidad[]
+}
+
+export interface EstadisticasLicitaciones {
+  totalLicitaciones: number
+  licitacionesPorEstado: Record<string, number>
+  licitacionesPorCategoria: Record<string, number>
+  totalPostulaciones: number
+  postulacionesPorEstado: Record<string, number>
+  montoTotalLicitado: number
+  publicacionesPorMes: MesCantidad[]
+}
+
+export interface EstadisticasVentas {
+  totalVentas: number
+  ingresosAprobados: number
+  premiumActivas: number
+  pagosPorEstado: Record<string, number>
+  suscripcionesPorEstado: Record<string, number>
+  ingresosPorMes: { mes: string; monto: number; cantidad: number }[]
+}
+
+export interface RolInfo { id: number; nombre: Rol; cantidadUsuarios: number }

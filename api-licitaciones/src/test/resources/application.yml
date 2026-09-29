@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:licitaciones;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+  flyway:
+    enabled: false
+
+licitawatch:
+  jwt:
+    secret: test-secret-de-pruebas-con-mas-de-32-caracteres-123456
+  internal-api-key: test-internal-key
+  frontend-url: http://localhost:5173
+  services:
+    usuarios-url: http://localhost:65001
+    ventas-url: http://localhost:65002
+    notificaciones-url: http://localhost:65003

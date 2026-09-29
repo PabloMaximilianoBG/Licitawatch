@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  POM agregador de LicitaWatch: permite compilar y probar todos los microservicios con un solo comando.
+    mvn clean test        (todas las pruebas JUnit 5 + MockMvc + H2)
+    mvn -DskipTests package
+  Cada microservicio sigue siendo un proyecto Spring Boot independiente (su propio pom y su propia BD).
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>cl.licitawatch</groupId>
+    <artifactId>licitawatch</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>LicitaWatch</name>
+
+    <modules>
+        <module>api-usuarios</module>
+        <module>api-licitaciones</module>
+        <module>api-ventas</module>
+        <module>api-notificaciones</module>
+        <module>api-asistente</module>
+        <module>api-gateway</module>
+    </modules>
+</project>

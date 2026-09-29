@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>LicitaWatch · Pagar en Webpay (sandbox)</title>
+    <style>
+        body { font-family: Segoe UI, Arial, sans-serif; background: #0b1220; color: #e2e8f0; display: grid; place-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #111a2e; border: 1px solid #1e293b; border-radius: 14px; padding: 28px; max-width: 520px; }
+        code { background: #1e293b; padding: 2px 6px; border-radius: 6px; }
+        button { background: #2563eb; color: #fff; border: 0; border-radius: 10px; padding: 12px 20px; font-size: 15px; cursor: pointer; }
+        input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0b1220; color: #e2e8f0; margin: 8px 0 16px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Pagar en Webpay Plus · sandbox Transbank</h2>
+    <p>Herramienta de pruebas para la colección Postman. Pega el <code>webpayToken</code> (o abre este archivo con <code>?token=...</code>) y presiona Pagar.</p>
+    <p>Tarjeta de prueba aprobada: VISA <code>4051 8856 0044 6623</code>, CVV <code>123</code>. En la autenticación: RUT <code>11.111.111-1</code>, clave <code>123</code>.<br>
+        Rechazada: Mastercard <code>5186 0595 5959 0568</code>.</p>
+    <!-- Webpay Plus exige POST con token_ws a la URL devuelta por la API (ambiente de integración). -->
+    <form id="f" method="post" action="https://webpay3gint.transbank.cl/webpayserver/initTransaction">
+        <label for="token">Token Webpay</label>
+        <input id="token" name="token_ws" required>
+        <button type="submit">Pagar en Webpay</button>
+    </form>
+</div>
+<script>
+    const t = new URLSearchParams(location.search).get('token');
+    if (t) { document.getElementById('token').value = t; }
+</script>
+</body>
+</html>

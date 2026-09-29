@@ -1,69 +1,92 @@
-import { Route, Routes } from "react-router-dom";
-import AppLayout from "./components/layout/AppLayout";
-import AuthLayout from "./components/layout/AuthLayout";
-import ProtectedRoute from "./components/layout/ProtectedRoute";
-
-import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";
-import RegistroPage from "./pages/RegistroPage";
-import LicitacionesPublicasPage from "./pages/LicitacionesPublicasPage";
-import LicitacionDetallePage from "./pages/LicitacionDetallePage";
-import MisPostulacionesPage from "./pages/MisPostulacionesPage";
-import PlanesPage from "./pages/PlanesPage";
-import PagoResultadoPage from "./pages/PagoResultadoPage";
-import PerfilPage from "./pages/PerfilPage";
-import NotFoundPage from "./pages/NotFoundPage";
-
-import MisLicitacionesPage from "./pages/empresa/MisLicitacionesPage";
-import PublicarLicitacionPage from "./pages/empresa/PublicarLicitacionPage";
-import PostulacionesRecibidasPage from "./pages/empresa/PostulacionesRecibidasPage";
-
-import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
-import AdminUsuariosPage from "./pages/admin/AdminUsuariosPage";
-import AdminLicitacionesPage from "./pages/admin/AdminLicitacionesPage";
-import AdminVentasPage from "./pages/admin/AdminVentasPage";
+import { Route, Routes } from 'react-router-dom'
+import { Toaster } from '@/components/ui'
+import { ProtectedRoute, RedirectDashboard } from '@/components/ProtectedRoute'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import Landing from '@/pages/public/Landing'
+import Login from '@/pages/public/Login'
+import RegisterSelect from '@/pages/public/RegisterSelect'
+import RegisterPyme from '@/pages/public/RegisterPyme'
+import RegisterLicitador from '@/pages/public/RegisterLicitador'
+import ConfirmEmail from '@/pages/public/ConfirmEmail'
+import Planes from '@/pages/public/Planes'
+import Pago from '@/pages/pago/Pago'
+import PagoResultado from '@/pages/pago/PagoResultado'
+import NotFound from '@/pages/public/NotFound'
+import PymeResumen from '@/pages/pyme/PymeResumen'
+import BuscarLicitaciones from '@/pages/pyme/BuscarLicitaciones'
+import LicitacionDetallePyme from '@/pages/pyme/LicitacionDetalle'
+import MisPostulaciones from '@/pages/pyme/MisPostulaciones'
+import LicitadorResumen from '@/pages/licitador/LicitadorResumen'
+import MisLicitaciones from '@/pages/licitador/MisLicitaciones'
+import LicitacionForm from '@/pages/licitador/LicitacionForm'
+import LicitacionGestion from '@/pages/licitador/LicitacionGestion'
+import AdminResumen from '@/pages/admin/AdminResumen'
+import AdminUsuarios from '@/pages/admin/AdminUsuarios'
+import AdminLicitaciones from '@/pages/admin/AdminLicitaciones'
+import AdminPostulaciones from '@/pages/admin/AdminPostulaciones'
+import AdminVentas from '@/pages/admin/AdminVentas'
+import AdminNotificaciones from '@/pages/admin/AdminNotificaciones'
+import Suscripcion from '@/pages/shared/Suscripcion'
+import HistorialPagos from '@/pages/shared/HistorialPagos'
+import ComprobantePage from '@/pages/shared/ComprobantePage'
+import LicitAsist from '@/pages/shared/LicitAsist'
+import Perfil from '@/pages/shared/Perfil'
+import Notificaciones from '@/pages/shared/Notificaciones'
 
 export default function App() {
   return (
-    <Routes>
-      {/* Publicas (sin layout de sesion) */}
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/registro" element={<RegistroPage />} />
-      </Route>
+    <>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<RegisterSelect />} />
+        <Route path="/register/pyme" element={<RegisterPyme />} />
+        <Route path="/register/licitador" element={<RegisterLicitador />} />
+        <Route path="/confirm-email" element={<ConfirmEmail />} />
+        <Route path="/planes" element={<Planes />} />
 
-      {/* Autenticadas, cualquier rol */}
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/pago/resultado" element={<PagoResultadoPage />} />
-
+        <Route element={<ProtectedRoute roles={['PYME', 'LICITADOR']} />}>
+          <Route path="/pago" element={<Pago />} />
+        </Route>
         <Route element={<ProtectedRoute />}>
-          <Route path="/perfil" element={<PerfilPage />} />
-          <Route path="/licitaciones" element={<LicitacionesPublicasPage />} />
-          <Route path="/licitaciones/:id" element={<LicitacionDetallePage />} />
-          <Route path="/planes" element={<PlanesPage />} />
+          <Route path="/pago/resultado" element={<PagoResultado />} />
+          <Route path="/dashboard" element={<RedirectDashboard />} />
+          <Route element={<DashboardLayout />}>
+            <Route element={<ProtectedRoute roles={['PYME']} />}>
+              <Route path="/dashboard/pyme" element={<PymeResumen />} />
+              <Route path="/dashboard/pyme/licitaciones" element={<BuscarLicitaciones />} />
+              <Route path="/dashboard/pyme/licitaciones/:id" element={<LicitacionDetallePyme />} />
+              <Route path="/dashboard/pyme/postulaciones" element={<MisPostulaciones />} />
+            </Route>
+            <Route element={<ProtectedRoute roles={['LICITADOR']} />}>
+              <Route path="/dashboard/licitador" element={<LicitadorResumen />} />
+              <Route path="/dashboard/licitador/licitaciones" element={<MisLicitaciones />} />
+              <Route path="/dashboard/licitador/licitaciones/nueva" element={<LicitacionForm />} />
+              <Route path="/dashboard/licitador/licitaciones/:id" element={<LicitacionGestion />} />
+              <Route path="/dashboard/licitador/licitaciones/:id/editar" element={<LicitacionForm />} />
+            </Route>
+            <Route element={<ProtectedRoute roles={['ADMINISTRADOR']} />}>
+              <Route path="/dashboard/admin" element={<AdminResumen />} />
+              <Route path="/dashboard/admin/usuarios" element={<AdminUsuarios />} />
+              <Route path="/dashboard/admin/licitaciones" element={<AdminLicitaciones />} />
+              <Route path="/dashboard/admin/postulaciones" element={<AdminPostulaciones />} />
+              <Route path="/dashboard/admin/ventas" element={<AdminVentas />} />
+              <Route path="/dashboard/admin/notificaciones" element={<AdminNotificaciones />} />
+            </Route>
+            <Route element={<ProtectedRoute roles={['PYME', 'LICITADOR']} />}>
+              <Route path="/dashboard/suscripcion" element={<Suscripcion />} />
+              <Route path="/dashboard/pagos" element={<HistorialPagos />} />
+              <Route path="/dashboard/pagos/:id/comprobante" element={<ComprobantePage />} />
+            </Route>
+            <Route path="/dashboard/asistente" element={<LicitAsist />} />
+            <Route path="/dashboard/perfil" element={<Perfil />} />
+            <Route path="/dashboard/notificaciones" element={<Notificaciones />} />
+            <Route path="/dashboard/*" element={<NotFound embedded />} />
+          </Route>
         </Route>
-
-        <Route element={<ProtectedRoute rolesPermitidos={["CLIENTE"]} />}>
-          <Route path="/mis-postulaciones" element={<MisPostulacionesPage />} />
-        </Route>
-
-        <Route element={<ProtectedRoute rolesPermitidos={["EMPRESA"]} />}>
-          <Route path="/empresa/licitaciones" element={<MisLicitacionesPage />} />
-          <Route path="/empresa/licitaciones/nueva" element={<PublicarLicitacionPage />} />
-          <Route path="/empresa/licitaciones/:id/editar" element={<PublicarLicitacionPage />} />
-          <Route path="/empresa/licitaciones/:id/postulaciones" element={<PostulacionesRecibidasPage />} />
-        </Route>
-
-        <Route element={<ProtectedRoute rolesPermitidos={["ADMINISTRADOR"]} />}>
-          <Route path="/admin" element={<AdminDashboardPage />} />
-          <Route path="/admin/usuarios" element={<AdminUsuariosPage />} />
-          <Route path="/admin/licitaciones" element={<AdminLicitacionesPage />} />
-          <Route path="/admin/ventas" element={<AdminVentasPage />} />
-        </Route>
-
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
-  );
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Toaster />
+    </>
+  )
 }

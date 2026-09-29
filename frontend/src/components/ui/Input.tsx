@@ -1,31 +1,43 @@
-import { type InputHTMLAttributes, forwardRef } from "react";
+import { forwardRef, useId, useState, type InputHTMLAttributes, type ReactNode } from 'react'
+import { Eye, EyeOff } from 'lucide-react'
+import { cn } from '@/utils/format'
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
+interface Props extends InputHTMLAttributes<HTMLInputElement> {
+  label?: string
+  error?: string
+  hint?: string
+  icon?: ReactNode
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(({ label, error, className = "", id, ...props }, ref) => {
-  const inputId = id ?? props.name;
+export const Input = forwardRef<HTMLInputElement, Props>(({ label, error, hint, icon, className, type, id, ...rest }, ref) => {
+  const autoId = useId()
+  const inputId = id ?? autoId
+  const [ver, setVer] = useState(false)
+  const esPassword = type === 'password'
   return (
-    <div className="flex flex-col gap-1.5">
-      {label && (
-        <label htmlFor={inputId} className="text-sm font-medium text-slate-300">
-          {label}
-        </label>
-      )}
-      <input
-        ref={ref}
-        id={inputId}
-        className={`rounded-xl border bg-white/5 px-3.5 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition-colors focus:border-brand-400 focus:bg-white/[0.07] focus:ring-2 focus:ring-brand-500/30 ${
-          error ? "border-red-500/60" : "border-white/10"
-        } ${className}`}
-        {...props}
-      />
-      {error && <span className="text-xs text-red-400">{error}</span>}
+    <div className={className}>
+      {label && <label htmlFor={inputId} className="label">{label}{rest.required && <span className="text-red-500"> *</span>}</label>}
+      <div className="relative">
+        {icon && <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400">{icon}</span>}
+        <input
+          ref={ref}
+          id={inputId}
+          type={esPassword && ver ? 'text' : type}
+          aria-invalid={!!error}
+          aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
+          className={cn('field', icon && 'pl-10', esPassword && 'pr-10', error && 'field-error')}
+          {...rest}
+        />
+        {esPassword && (
+          <button type="button" onClick={() => setVer((v) => !v)} aria-label={ver ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-ink-400 hover:text-ink-700">
+            {ver ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
+      {error ? <p id={`${inputId}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-600">{error}</p>
+        : hint ? <p id={`${inputId}-hint`} className="mt-1.5 text-xs text-ink-500">{hint}</p> : null}
     </div>
-  );
-});
-Input.displayName = "Input";
-
-export default Input;
+  )
+})
+Input.displayName = 'Input'

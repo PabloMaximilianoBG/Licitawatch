@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: api-usuarios
+  config:
+    # Lee el .env de la raíz del proyecto (formato KEY=VALUE) sin exponer secretos en el código
+    import: "optional:file:../.env[.properties],optional:file:./.env[.properties]"
+  datasource:
+    # stringtype=unspecified: los enums se envían como texto y PostgreSQL los castea al tipo ENUM nativo
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${DB_USUARIOS_NAME:licitawatch_usuarios}?stringtype=unspecified
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc.time_zone: America/Santiago
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8081
+  address: ${BIND_ADDRESS:127.0.0.1}
+  error:
+    include-stacktrace: never
+    include-message: never
+
+licitawatch:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-minutes: ${JWT_EXPIRATION:60}
+  internal-api-key: ${INTERNAL_API_KEY}
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  email-token-expiration-hours: ${EMAIL_TOKEN_EXPIRATION_HOURS:24}
+  services:
+    notificaciones-url: ${NOTIFICACIONES_URL:http://localhost:8084}
+  admin:
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
+    name: ${ADMIN_NAME:Administrador}
+    area: ${ADMIN_AREA:Administracion}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    cl.licitawatch: INFO

@@ -1,65 +1,51 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
-import { useAuthStore } from "../store/authStore";
+import axios, { AxiosError } from 'axios'
+import type { ApiError } from '@/types'
+import { useAuth } from '@/store/auth'
+import { toast } from '@/store/toast'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
 
-const apiClient = axios.create({ baseURL: BASE_URL });
+/** Todo el frontend habla SOLO con el API Gateway (8080). */
+export const api = axios.create({ baseURL: API_BASE_URL, timeout: 90_000 })
 
-apiClient.interceptors.request.use((config) => {
-  const { accessToken } = useAuthStore.getState();
-  if (accessToken) {
-    config.headers.set("Authorization", `Bearer ${accessToken}`);
-  }
-  return config;
-});
+// Adjunta el JWT en cada request
+api.interceptors.request.use((config) => {
+  const token = useAuth.getState().token
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
 
-type RequestConRetry = InternalAxiosRequestConfig & { _retry?: boolean };
-
-let refrescoEnCurso: Promise<string | null> | null = null;
-
-async function refrescarToken(): Promise<string | null> {
-  const { refreshToken, setAccessToken, cerrarSesion } = useAuthStore.getState();
-  if (!refreshToken) return null;
-  try {
-    const { data } = await axios.post(`${BASE_URL}/api/auth/refresh`, { refreshToken });
-    setAccessToken(data.accessToken, data.refreshToken);
-    return data.accessToken as string;
-  } catch {
-    cerrarSesion();
-    return null;
-  }
-}
-
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error: AxiosError) => {
-    const original = error.config as RequestConRetry | undefined;
-    const esLoginORefresh = original?.url?.includes("/api/auth/login") || original?.url?.includes("/api/auth/refresh");
-
-    if (error.response?.status === 401 && original && !original._retry && !esLoginORefresh) {
-      original._retry = true;
-      if (!refrescoEnCurso) {
-        refrescoEnCurso = refrescarToken().finally(() => {
-          refrescoEnCurso = null;
-        });
+// Manejo centralizado de 401 / 403 / 429 / errores de red
+api.interceptors.response.use(
+  (r) => r,
+  (error: AxiosError<ApiError>) => {
+    const status = error.response?.status
+    const code = error.response?.data?.code
+    const url = error.config?.url ?? ''
+    if (status === 401 && !url.includes('/api/auth/')) {
+      const expirada = code === 'TOKEN_EXPIRADO'
+      useAuth.getState().logout()
+      toast.error(expirada ? 'Tu sesión expiró. Inicia sesión nuevamente.' : 'Debes iniciar sesión para continuar.')
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.assign(`/login?${expirada ? 'expirada=1&' : ''}redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`)
       }
-      const nuevoToken = await refrescoEnCurso;
-      if (nuevoToken) {
-        original.headers.set("Authorization", `Bearer ${nuevoToken}`);
-        return apiClient(original);
-      }
+    } else if (status === 403 && code === 'ACCESO_DENEGADO') {
+      toast.error('No tienes permisos para realizar esta acción.')
+    } else if (status === 429) {
+      toast.error(error.response?.data?.message ?? 'Demasiadas solicitudes. Intenta en unos segundos.')
+    } else if (!error.response) {
+      toast.error('No se pudo conectar con LicitaWatch. Verifica que el API Gateway esté en ejecución.')
     }
-    return Promise.reject(error);
-  }
-);
+    return Promise.reject(error)
+  },
+)
 
-export default apiClient;
-
-export function obtenerMensajeError(error: unknown, fallback = "Ocurrió un error inesperado."): string {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data as { mensaje?: string; detalles?: string[] } | undefined;
-    if (data?.detalles?.length) return data.detalles.join(" · ");
-    if (data?.mensaje) return data.mensaje;
+/** Normaliza cualquier error de Axios al formato de error de la API. */
+export function apiError(e: unknown): ApiError {
+  const err = e as AxiosError<ApiError>
+  if (err?.response?.data && typeof err.response.data === 'object') {
+    return { ...err.response.data, status: err.response.status }
   }
-  return fallback;
+  if (err?.response) return { status: err.response.status, message: 'Ocurrió un error inesperado.' }
+  return { status: 0, message: 'No se pudo conectar con el servidor.' }
 }

@@ -1,0 +1,1 @@
+INSERT INTO rol (nombre) VALUES ('LICITADOR'), ('PYME'), ('ADMINISTRADOR');
